@@ -54,7 +54,7 @@ end
 
 
 # Compressed Sparse Column (CSC) Sparse Matrix
-function randomSparseMatrix(; symmetric = false, size = 20, sparsity = 0.2)
+function randomSparseMatrix(; symmetric = false, size = 20, sparsity = 0.1)
     if symmetric
         return Symmetric(sprand(size,size,sparsity))
     else
@@ -66,7 +66,20 @@ end
 # Todo placeholder
 function matrixToOpSum(matrix)
     os = OpSum()
-    # Todo
+
+    # Row indices, column indices, values
+    entries = findnz(matrix)
+
+    # Loop over matrix entries
+    for entry in eachindex(SparseArrays.nnz(matrix))
+        # Add Paulis to OpSum
+        row = entries[1][entry]
+        col = entries[2][entry]
+        value = entries[3][entry]
+        
+        println(row, " ", col, " ", value)
+    end
+
     return os
 end
 
@@ -74,12 +87,15 @@ end
 # Program
 let
     # Matrix
-    N = 10
+    N = 3
     size = 2^N
     a = randomSparseMatrix(size = size)
     println("matrix type", typeof(a))
+    println(a)
+
+    os = matrixToOpSum(a)
 
     # DMRG
-    values = compute_eigenvalues(matrix; N = 20, numValues = 2)
-    println("values", values)
+    #values = compute_eigenvalues(matrix; N = 20, numValues = 2)
+    #println("values", values)
 end
