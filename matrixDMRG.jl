@@ -11,13 +11,13 @@ using ITensors
 using SparseArrays
 
 
-function compute_eigenvalues(matrix; N = 20, eigenvalues = 1)
+function compute_eigenvalues(matrix, N; eigenvalues = 1)
     # (1) Define the matrix 
     # Define the vector space (2^size x 2^size)
     sites = siteinds("S=1",N)
 
     # Matrix in terms of Pauli matrices
-    os = matrixToOpSum(matrix)
+    os = matrixToOpSum(matrix, M)
     # Todo placeholder 
     os = OpSum()
     for j=1:N-1
@@ -63,11 +63,11 @@ function randomSparseMatrix(; symmetric = false, size = 20, sparsity = 0.1)
 end
 
 
-# Todo: complex
 # Input: (2^N)x(2^N) matrix
-# Output: 
+# Output: Sum of tensorproduct of N 2x2 matrices
 # Each entry is replaced by a tensorproduct of N 2x2 matrices
 # Each 2x2 matrix is a linear combination of Pauli matrices and the Idendity
+# Todo: complex entries
 function matrixToOpSum(matrix, N)
     os = OpSum()
     # Todo: proper OpSum not implemented
@@ -125,10 +125,10 @@ let
     println("matrix type", typeof(a))
     println(a)
 
-    os = matrixToOpSum(a, N)
+    @time os = matrixToOpSum(a, N)
     println(os)
 
     # DMRG
-    #values = compute_eigenvalues(a; N = 20, eigenvalues = 2)
+    #@time values = compute_eigenvalues(a; N = 20, eigenvalues = 2)
     #println("values", values)
 end
