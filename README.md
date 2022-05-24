@@ -12,10 +12,10 @@ Heitor Peres Casagrande https://github.com/heitorc7
 ### DMRG for any matrix
 matrixDMRG.jl
 
-### Examples
+### Other examples
 simpleDMRG.jl - Single smallest Eigenvalue of a Hamiltonian using DMRG <br />
 eigenvaluesDMRG.jl - First few smallest Eigenvalue of a Hamiltonian using DMRG <br />
-eigenvaluesDMRG.cc - Same, but using ITensor C++ version <br />
+eigenvaluesDMRG.cc - First few smallest Eigenvalue of a Hamiltonian using DMRG, but using ITensor C++ version <br />
 
 # Installation
 
