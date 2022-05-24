@@ -17,15 +17,7 @@ function compute_eigenvalues(matrix, N; eigenvalues = 1)
     sites = siteinds("S=1",N)
 
     # Matrix in terms of Pauli matrices
-    os = matrixToOpSum(matrix, M)
-    # Todo placeholder 
-    os = OpSum()
-    for j=1:N-1
-        os += -1,"Sz",j,"Sz",j+1
-    end
-    for j=1:N
-        os += -0.5,"Sx",j;
-    end
+    os = matrixToOpSum(matrix, N)
     H = MPO(os,sites)
 
     # (2) Configure DMRG
@@ -69,9 +61,8 @@ end
 # Each 2x2 matrix is a linear combination of Pauli matrices and the Idendity
 # Todo: complex entries
 function matrixToOpSum(matrix, N)
+    # Output
     os = OpSum()
-    # Todo: proper OpSum not implemented
-    os = []
 
     # Row indices, column indices, values
     entries = findnz(matrix)
@@ -85,29 +76,55 @@ function matrixToOpSum(matrix, N)
 
         # Replace each row-column-digit-pair with a 2x2 matrix 
         # (made out of Pauli matrices)
-        # Add Pauli matrices to OpSum
-        # Todo: probably not easily possible
-        # Decompose tensorproduct of N matrices as a sum of tensorproducts of 2 matrices?
+        # (Number,String,Int,String,Int,...)
+        os_vector = [] # vector for S+, S-
+        os_vector_id = [] # vector for Id
+        os_vector_plus = [] # vector for +Z
+        os_vector_minus = [] # vector for  -Z
         for pair in 1:N
+            # values Todo: fix prefactors
+            # https://github.com/ITensor/ITensors.jl/blob/72b0bd9b2c9c2f37d311a4e3958f20d08ad7c069/src/physics/site_types/spinone.jl
+            if pair == 1
+                push!(os_vector, value) # value
+                push!(os_vector_id, value*0.5) # value
+                push!(os_vector_plus, value*0.5) # value
+                push!(os_vector_minus, -value*0.5) # value
+            end
             if row_binary[pair] == 0
                 if col_binary[pair] == 0
-                    # 00
-                    push!(os, "0.5(Id+Z)")
+                    # 00 = "0.5(Id+Z)"
+                    push!(os_vector_id, "Id") # operator
+                    push!(os_vector_id, pair) # position
+                    push!(os_vector_plus, "Sz") # operator
+                    push!(os_vector_plus, pair) # position
                 else
-                    # 01
-                    push!(os, "0.5(X+iY)=P+")
+                    # 01 = "0.5(X+iY)=P+"
+                    push!(os_vector, "S+") # operator
+                    push!(os_vector, pair) # position
                 end
             else
                 if col_binary[pair] == 0
-                    # 10
-                    push!(os, "0.5(X+iY)=P-")
+                    # 10 = "0.5(X+iY)=P-"
+                    push!(os_vector, "S-") # operator
+                    push!(os_vector, pair) # position
                 else
-                    # 11
-                    push!(os, "0.5(Id-Z)")
+                    # 11 = "0.5(Id-Z)"
+                    push!(os_vector_id, "Id") # operator
+                    push!(os_vector_id, pair) # position
+                    push!(os_vector_minus, "Sz") # operator
+                    push!(os_vector_minus, pair) # position
                 end
             end
         end
-
+        # Add Pauli matrices to OpSum
+        # OpSum only accepts (immutable) tuples
+        vectors = [os_vector, os_vector_id, os_vector_plus, os_vector_minus]
+        for vec in 1:length(vectors)
+            if length(vectors[vec]) != 1
+                #println("tuple ", tuple(vectors[vec]...))
+                os += tuple(vectors[vec]...)
+            end
+        end
     end
 
     return os
@@ -125,10 +142,10 @@ let
     println("matrix type", typeof(a))
     println(a)
 
-    @time os = matrixToOpSum(a, N)
-    println(os)
+    #@time os = matrixToOpSum(a, N)
+    #println(os)
 
     # DMRG
-    #@time values = compute_eigenvalues(a; N = 20, eigenvalues = 2)
+    @time values = compute_eigenvalues(a, N; eigenvalues = 1)
     #println("values", values)
 end
