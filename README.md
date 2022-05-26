@@ -6,8 +6,6 @@ by Matthew Fishman and Steven R. White and E. Miles Stoudenmire <br />
 arxiv.org/abs/2007.14822 <br />
 http://itensor.org/
 
-In collaboration with: <br />
-Heitor Peres Casagrande https://github.com/heitorc7
 
 ## DMRG for any matrix
 matrixDMRG.jl
